@@ -2,11 +2,13 @@ package ru.practicum.shareit.item.model;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
 @Data
+@AllArgsConstructor
 public class Item {
     private Integer id;
     @NotBlank(message = "The name must not be empty")

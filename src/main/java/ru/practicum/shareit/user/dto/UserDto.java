@@ -1,18 +1,19 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import ru.practicum.shareit.groups.Add;
+import ru.practicum.shareit.user.User;
 
 @Data
 @AllArgsConstructor
-public class User {
+public class UserDto {
     private Integer id;
-    @NotNull(groups = {Add.class}, message = "The name must not be null.")
     private String name;
-    @NotNull(groups = Add.class)
-    @Email
     private String email;
+
+    public static UserDto getUserDto(User user) {
+        return new UserDto(user.getId(), user.getName(), user.getEmail());
+    }
 }
