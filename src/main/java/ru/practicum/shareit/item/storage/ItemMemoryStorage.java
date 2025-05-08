@@ -6,6 +6,8 @@ import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.error.exceptions.NoHavePermissionException;
 import ru.practicum.shareit.error.exceptions.NotFoundException;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.mapper.ItemDtoMapper;
 import ru.practicum.shareit.item.model.Item;
 
 import java.beans.PropertyDescriptor;
@@ -18,12 +20,9 @@ public class ItemMemoryStorage implements ItemStorage {
 
 
     @Override
-    public Item addItem(Item item) {
-        if (item.getId() == null) {
-            item.setId(getNextId());
-        }
+    public ItemDto addItem(Item item) {
         items.put(item.getId(), item);
-        return getItem(item.getId());
+        return ItemDtoMapper.toItemDto(item);
     }
 
     @Override
@@ -36,8 +35,8 @@ public class ItemMemoryStorage implements ItemStorage {
     }
 
     @Override
-    public List<Item> getItems(int id) {
-        return items.values().stream().filter(item -> item.getOwner().getId() == id).collect(Collectors.toList());
+    public List<Item> getUserItems(int ownerId) {
+        return items.values().stream().filter(item -> item.getOwner().getId() == ownerId).collect(Collectors.toList());
     }
 
     @Override
@@ -46,14 +45,17 @@ public class ItemMemoryStorage implements ItemStorage {
     }
 
     @Override
-    public Item updateItem(Item item) {
+    public ItemDto updateItem(Item item) {
+
         Item oldItem = items.get(item.getId());
         if (!Objects.equals(oldItem.getOwner().getId(), item.getOwner().getId())) {
             throw new NoHavePermissionException("Only owner can update this Item");
         }
+        // В тестах postman на обновление передаются те поля, которые изменяются.
+        // Данный метод заменяет поля старого объекта на не null поля нового объекта.
         copyFields(oldItem, item);
-        deleteItem(oldItem.getId());
-        return addItem(item);
+        items.put(item.getId(), item);
+        return ItemDtoMapper.toItemDto(item);
     }
 
     @Override
@@ -76,12 +78,5 @@ public class ItemMemoryStorage implements ItemStorage {
             }
         }
         return emptyFields.toArray(new String[0]);
-    }
-
-    private Integer getNextId() {
-        return items.keySet()
-                .stream()
-                .max(Integer::compareTo)
-                .orElse(items.size() + 1) + 1;
     }
 }

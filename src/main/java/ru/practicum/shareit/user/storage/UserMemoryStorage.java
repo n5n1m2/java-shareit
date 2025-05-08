@@ -4,9 +4,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.error.exceptions.ConflictException;
 import ru.practicum.shareit.error.exceptions.NotFoundException;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.mapper.UserDtoMapper;
 
 import java.beans.PropertyDescriptor;
 import java.util.*;
@@ -24,10 +25,9 @@ public class UserMemoryStorage implements UserStorage {
     }
 
     @Override
-    public User addUser(User user) {
-        userValidation(user);
-        users.put(user.getId(), user);
-        return getUser(user.getId());
+    public UserDto addUser(UserDto userDto) {
+        users.put(userDto.getId(), UserDtoMapper.getUser(userDto));
+        return userDto;
     }
 
     @Override
@@ -39,11 +39,10 @@ public class UserMemoryStorage implements UserStorage {
     }
 
     @Override
-    public User updateUser(User user) {
-        User oldUser = users.get(user.getId());
-        emailValidation(user);
-        copyFields(oldUser, user);
-        removeUser(user.getId());
+    public UserDto updateUser(UserDto userDto) {
+        UserDto oldUser = UserDtoMapper.getUserDto(users.get(userDto.getId()));
+        copyFields(oldUser, userDto);
+        removeUser(userDto.getId());
         return addUser(oldUser);
     }
 
@@ -52,35 +51,7 @@ public class UserMemoryStorage implements UserStorage {
         return new ArrayList<>(users.values());
     }
 
-    private void emailValidation(User user) {
-        if (users.values().stream()
-                .anyMatch(
-                        user1 -> user1.getEmail().equalsIgnoreCase(user.getEmail())
-                                && !Objects.equals(user1.getId(), user.getId())
-                )) {
-            throw new ConflictException("Email already exists " + user.toString());
-        }
-    }
-
-    private Integer getNextId() {
-        return users.keySet()
-                .stream()
-                .max(Integer::compare)
-                .orElse(users.size() + 1) + 1;
-    }
-
-    private User userValidation(User user) {
-        if (user.getId() == null) {
-            user.setId(getNextId());
-        }
-        emailValidation(user);
-        if (users.containsKey(user.getId())) {
-            throw new ConflictException("User with id " + user.getId() + " is already exits");
-        }
-        return user;
-    }
-
-    private void copyFields(User old, User newUser) {
+    private void copyFields(UserDto old, UserDto newUser) {
         BeanUtils.copyProperties(newUser, old, getNotNullFields(newUser));
     }
 
