@@ -5,13 +5,11 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.error.exceptions.ConflictException;
+import ru.practicum.shareit.error.exceptions.NotFoundException;
 import ru.practicum.shareit.user.User;
 
 import java.beans.PropertyDescriptor;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class UserMemoryStorage implements UserStorage {
@@ -20,6 +18,9 @@ public class UserMemoryStorage implements UserStorage {
 
     @Override
     public User getUser(int id) {
+        if (!users.containsKey(id)) {
+            throw new NotFoundException("User with id " + id + " not found");
+        }
         return users.get(id);
     }
 
@@ -43,14 +44,15 @@ public class UserMemoryStorage implements UserStorage {
     @Override
     public User updateUser(User user) {
         User oldUser = users.get(user.getId());
-//        if (oldUser.getEmail() != null && !oldUser.getEmail().equals(user.getEmail())) {
-            emailValidation(user.getEmail());
-//        } else if (Objects.equals(oldUser.getEmail(), user.getEmail())) {
-//            throw new ConflictException("Email already exists");
-//        }
+        emailValidation(user.getEmail());
         copyFields(oldUser, user);
         removeUser(user.getId());
         return addUser(oldUser);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return new ArrayList<>(users.values());
     }
 
     private void emailValidation(String email) {
@@ -79,11 +81,7 @@ public class UserMemoryStorage implements UserStorage {
     }
 
     private void copyFields(User old, User newUser) {
-        try {
-            BeanUtils.copyProperties(newUser, old, getNotNullFields(newUser));
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Failed to copy User", e);
-        }
+        BeanUtils.copyProperties(newUser, old, getNotNullFields(newUser));
     }
 
     private String[] getNotNullFields(Object object) {

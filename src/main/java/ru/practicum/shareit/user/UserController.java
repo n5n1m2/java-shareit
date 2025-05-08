@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user;
 
-import jakarta.validation.Valid;
 import jakarta.validation.groups.Default;
 import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -8,11 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.groups.Add;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
-import ru.practicum.shareit.user.storage.UserStorage;
 
-/**
- * TODO Sprint add-controllers.
- */
+import java.util.List;
+
 @RestController
 @RequestMapping(path = "/users")
 @AllArgsConstructor
@@ -33,6 +30,11 @@ public class UserController {
     @GetMapping("/{id}")
     public UserDto getUser(@PathVariable int id) {
         return userService.getUser(id);
+    }
+
+    @GetMapping
+    public List<UserDto> getUsers() {
+        return userService.getAllUsers();
     }
 
     @DeleteMapping("/{id}")
