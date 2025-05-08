@@ -8,8 +8,10 @@ import ru.practicum.shareit.error.exceptions.NoHavePermissionException;
 import ru.practicum.shareit.item.model.Item;
 
 import java.beans.PropertyDescriptor;
-import java.nio.file.AccessDeniedException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -19,7 +21,7 @@ public class ItemMemoryStorage implements ItemStorage {
 
     @Override
     public Item addItem(Item item) {
-        if (item.getId() == null){
+        if (item.getId() == null) {
             item.setId(getNextId());
         }
         items.put(item.getId(), item);
@@ -39,7 +41,7 @@ public class ItemMemoryStorage implements ItemStorage {
     @Override
     public Item updateItem(Item item) {
         Item oldItem = items.get(item.getId());
-        if (oldItem.getOwner().getId() != item.getOwner().getId()){
+        if (oldItem.getOwner().getId() != item.getOwner().getId()) {
             throw new NoHavePermissionException("Only owner can update this Item");
         }
         copyFields(oldItem, item);
