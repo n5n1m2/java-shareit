@@ -1,16 +1,14 @@
 package ru.practicum.shareit.user.storage;
 
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.error.exceptions.NotFoundException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.mapper.UserDtoMapper;
 
-import java.beans.PropertyDescriptor;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @Component
 public class UserMemoryStorage implements UserStorage {
@@ -40,31 +38,11 @@ public class UserMemoryStorage implements UserStorage {
 
     @Override
     public UserDto updateUser(UserDto userDto) {
-        UserDto oldUser = UserDtoMapper.getUserDto(users.get(userDto.getId()));
-        copyFields(oldUser, userDto);
-        removeUser(userDto.getId());
-        return addUser(oldUser);
+        return addUser(userDto);
     }
 
     @Override
     public List<User> getAllUsers() {
         return new ArrayList<>(users.values());
-    }
-
-    private void copyFields(UserDto old, UserDto newUser) {
-        BeanUtils.copyProperties(newUser, old, getNotNullFields(newUser));
-    }
-
-    private String[] getNotNullFields(Object object) {
-        BeanWrapper wrapper = new BeanWrapperImpl(object);
-        PropertyDescriptor[] propertyDescriptors = wrapper.getPropertyDescriptors();
-        Set<String> emptyFields = new HashSet<>();
-        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
-            Object value = wrapper.getPropertyValue(propertyDescriptor.getName());
-            if (value == null) {
-                emptyFields.add(propertyDescriptor.getName());
-            }
-        }
-        return emptyFields.toArray(new String[0]);
     }
 }

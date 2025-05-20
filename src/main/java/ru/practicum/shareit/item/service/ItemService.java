@@ -1,7 +1,11 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.error.exceptions.NoHavePermissionException;
 import ru.practicum.shareit.error.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.mapper.ItemDtoMapper;
@@ -9,8 +13,8 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.storage.UserStorage;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.beans.PropertyDescriptor;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -20,18 +24,19 @@ public class ItemService {
     private final ItemStorage itemStorage;
 
     public ItemDto addItem(ItemDto itemDto, Integer userId) {
-        // Проверка на существование пользователя проходит в методе userStorage.getUser()
-        // Если пользователя с данным Id в хранилище нет, то выбрасывается NotFoundException
         itemValidation(itemDto, false);
         Item item = ItemDtoMapper.fromItemDto(itemDto, userStorage.getUser(userId));
         return itemStorage.addItem(item);
     }
 
     public ItemDto updateItem(ItemDto itemDto, Integer userId) {
-        // Проверка на существование пользователя проходит в методе userStorage.getUser()
-        // Если пользователя с данным Id в хранилище нет, то выбрасывается NotFoundException
         itemValidation(itemDto, true);
         Item item = ItemDtoMapper.fromItemDto(itemDto, userStorage.getUser(userId));
+        Item oldItem = itemStorage.getItem(item.getId());
+        if (!Objects.equals(oldItem.getOwner().getId(), item.getOwner().getId())) {
+            throw new NoHavePermissionException("Only owner can update this Item");
+        }
+        copyFields(oldItem, item);
         return itemStorage.updateItem(item);
     }
 
@@ -76,10 +81,25 @@ public class ItemService {
         } else if (forUpdate && itemDto.getId() == null) {
             throw new IllegalArgumentException("Item id is null");
         }
-        // Из-за оценки по короткому замыканию проверяется только forUpdate для запроса из метода добавления,
-        // поэтому затраты производительности минимальны.
         if (forUpdate && getItemById(itemDto.getId()) == null) {
             throw new NotFoundException("Item not found for id " + itemDto.getId());
         }
+    }
+
+    private void copyFields(Item old, Item newItem) {
+        BeanUtils.copyProperties(newItem, old, getNotNullFields(newItem));
+    }
+
+    private String[] getNotNullFields(Object object) {
+        BeanWrapper wrapper = new BeanWrapperImpl(object);
+        PropertyDescriptor[] propertyDescriptors = wrapper.getPropertyDescriptors();
+        Set<String> emptyFields = new HashSet<>();
+        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+            Object value = wrapper.getPropertyValue(propertyDescriptor.getName());
+            if (value == null) {
+                emptyFields.add(propertyDescriptor.getName());
+            }
+        }
+        return emptyFields.toArray(new String[0]);
     }
 }

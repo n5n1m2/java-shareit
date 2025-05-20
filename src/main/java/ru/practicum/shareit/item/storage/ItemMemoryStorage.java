@@ -1,17 +1,14 @@
 package ru.practicum.shareit.item.storage;
 
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.error.exceptions.NoHavePermissionException;
 import ru.practicum.shareit.error.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.mapper.ItemDtoMapper;
 import ru.practicum.shareit.item.model.Item;
 
-import java.beans.PropertyDescriptor;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -46,14 +43,6 @@ public class ItemMemoryStorage implements ItemStorage {
 
     @Override
     public ItemDto updateItem(Item item) {
-
-        Item oldItem = items.get(item.getId());
-        if (!Objects.equals(oldItem.getOwner().getId(), item.getOwner().getId())) {
-            throw new NoHavePermissionException("Only owner can update this Item");
-        }
-        // В тестах postman на обновление передаются те поля, которые изменяются.
-        // Данный метод заменяет поля старого объекта на не null поля нового объекта.
-        copyFields(oldItem, item);
         items.put(item.getId(), item);
         return ItemDtoMapper.toItemDto(item);
     }
@@ -61,22 +50,5 @@ public class ItemMemoryStorage implements ItemStorage {
     @Override
     public void deleteItem(int id) {
         items.remove(id);
-    }
-
-    private void copyFields(Item old, Item newItem) {
-        BeanUtils.copyProperties(newItem, old, getNotNullFields(newItem));
-    }
-
-    private String[] getNotNullFields(Object object) {
-        BeanWrapper wrapper = new BeanWrapperImpl(object);
-        PropertyDescriptor[] propertyDescriptors = wrapper.getPropertyDescriptors();
-        Set<String> emptyFields = new HashSet<>();
-        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
-            Object value = wrapper.getPropertyValue(propertyDescriptor.getName());
-            if (value == null) {
-                emptyFields.add(propertyDescriptor.getName());
-            }
-        }
-        return emptyFields.toArray(new String[0]);
     }
 }

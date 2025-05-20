@@ -2,16 +2,17 @@ package ru.practicum.shareit.user.service;
 
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.error.exceptions.ConflictException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.mapper.UserDtoMapper;
 import ru.practicum.shareit.user.storage.UserStorage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.beans.PropertyDescriptor;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -38,7 +39,10 @@ public class UserService {
 
     public UserDto updateUser(UserDto userDto) {
         userValidation(userDto, true);
-        return userStorage.updateUser(userDto);
+        UserDto oldUser = UserDtoMapper.getUserDto(userStorage.getUser(userDto.getId()));
+        copyFields(oldUser, userDto);
+        removeUser(userDto.getId());
+        return userStorage.updateUser(oldUser);
     }
 
     private void userValidation(UserDto userDto, boolean forUpdate) {
@@ -49,8 +53,6 @@ public class UserService {
         Optional<UserDto> user = getAllUsers()
                 .stream()
                 .filter(u -> Objects.equals(u.getId(), userDto.getId())).findFirst();
-        // Из-за оценки по короткому замыканию проверяется только forUpdate для запроса из метода добавления,
-        // поэтому затраты производительности минимальны.
         if (forUpdate && user.isPresent()) {
             return;
         } else if (user.isPresent()) {
@@ -74,5 +76,22 @@ public class UserService {
                 .map(UserDto::getId)
                 .max(Integer::compare)
                 .orElse(getAllUsers().size() + 1) + 1;
+    }
+
+    private void copyFields(UserDto old, UserDto newUser) {
+        BeanUtils.copyProperties(newUser, old, getNotNullFields(newUser));
+    }
+
+    private String[] getNotNullFields(Object object) {
+        BeanWrapper wrapper = new BeanWrapperImpl(object);
+        PropertyDescriptor[] propertyDescriptors = wrapper.getPropertyDescriptors();
+        Set<String> emptyFields = new HashSet<>();
+        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+            Object value = wrapper.getPropertyValue(propertyDescriptor.getName());
+            if (value == null) {
+                emptyFields.add(propertyDescriptor.getName());
+            }
+        }
+        return emptyFields.toArray(new String[0]);
     }
 }
