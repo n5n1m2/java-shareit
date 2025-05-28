@@ -1,9 +1,11 @@
 package ru.practicum.shareit.error;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.error.exceptions.CommentNoHavePermission;
 import ru.practicum.shareit.error.exceptions.ConflictException;
 import ru.practicum.shareit.error.exceptions.NoHavePermissionException;
 import ru.practicum.shareit.error.exceptions.NotFoundException;
@@ -28,9 +30,15 @@ public class ErrorHandler {
         return new ErrorResponse("Not Found", e.getMessage());
     }
 
-    @ExceptionHandler(NoHavePermissionException.class)
+    @ExceptionHandler({NoHavePermissionException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse noHavePermission(NoHavePermissionException e) {
         return new ErrorResponse("NoHavePermission", e.getMessage());
+    }
+
+    @ExceptionHandler({MethodArgumentNotValidException.class, CommentNoHavePermission.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse validation(RuntimeException e) {
+        return new ErrorResponse("Validation", e.getMessage());
     }
 }
