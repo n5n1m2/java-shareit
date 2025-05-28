@@ -1,8 +1,9 @@
 package ru.practicum.shareit.booking;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 
@@ -10,16 +11,29 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name = "booking")
 public class Booking {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @NotNull
+
+    @Column(name = "start_time")
     private LocalDateTime start;
-    @NotNull
+
+    @Column(name = "end_time")
     private LocalDateTime end;
-    @NotNull(message = "The item must not be null")
+
+    @ManyToOne
+    @JoinColumn(name = "item_id", referencedColumnName = "id")
     private Item item;
-    @NotNull(message = "The booker must not be null")
+
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User booker;
-    @NotNull(message = "The status must not be null")
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private BookingStatus status;
 }

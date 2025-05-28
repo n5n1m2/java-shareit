@@ -4,28 +4,27 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
-@Data
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
+@Data
 @NoArgsConstructor
 @Entity
-@Table(name = "items")
-public class Item {
+@Table(name = "comments")
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column
-    private String name;
-    @Column
-    private String description;
-    @Column
-    private Boolean available;
+    private String text;
+    @OneToOne
+    @JoinColumn(name = "item_id", referencedColumnName = "id")
+    private Item item;
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User owner;
-    @ManyToOne
-    @JoinColumn(name = "request_id", referencedColumnName = "id")
-    private ItemRequest request;
+    private User user;
+    @Column
+    private LocalDateTime created;
 }

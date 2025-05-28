@@ -7,9 +7,10 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.error.exceptions.ConflictException;
+import ru.practicum.shareit.error.exceptions.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.mapper.UserDtoMapper;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.beans.PropertyDescriptor;
 import java.util.*;
@@ -18,37 +19,37 @@ import java.util.stream.Collectors;
 @Component
 @AllArgsConstructor
 public class UserService {
-    private UserStorage userStorage;
+    private UserRepository userRepository;
 
     public UserDto getUser(int id) {
-        return UserDtoMapper.getUserDto(userStorage.getUser(id));
+        return UserDtoMapper.toDto(userRepository.findById(id).orElseThrow(() ->
+                new NotFoundException("User with id " + id + " not found")));
     }
 
     public List<UserDto> getAllUsers() {
-        return new ArrayList<>(userStorage.getAllUsers()).stream().map(UserDtoMapper::getUserDto).collect(Collectors.toList());
+        return userRepository.findAll().stream()
+                .map(UserDtoMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     public UserDto addUser(UserDto userDto) {
         userValidation(userDto, false);
-        return userStorage.addUser(userDto);
+        return UserDtoMapper.toDto(userRepository.save(UserDtoMapper.toUser(userDto)));
     }
 
     public void removeUser(int id) {
-        userStorage.removeUser(id);
+        userRepository.deleteById(id);
     }
 
     public UserDto updateUser(UserDto userDto) {
         userValidation(userDto, true);
-        UserDto oldUser = UserDtoMapper.getUserDto(userStorage.getUser(userDto.getId()));
+        UserDto oldUser = getUser(userDto.getId());
         copyFields(oldUser, userDto);
-        removeUser(userDto.getId());
-        return userStorage.updateUser(oldUser);
+        UserDto userDto1 = UserDtoMapper.toDto(userRepository.save(UserDtoMapper.toUser(oldUser)));
+        return userDto1;
     }
 
     private void userValidation(UserDto userDto, boolean forUpdate) {
-        if (userDto.getId() == null) {
-            userDto.setId(getNextId());
-        }
         emailValidation(userDto);
         Optional<UserDto> user = getAllUsers()
                 .stream()
@@ -66,16 +67,8 @@ public class UserService {
                         user1 -> user1.getEmail().equalsIgnoreCase(userDto.getEmail())
                                 && !Objects.equals(user1.getId(), userDto.getId())
                 )) {
-            throw new ConflictException("Email already exists " + userDto.toString());
+            throw new ConflictException("Email already exists " + userDto);
         }
-    }
-
-    private Integer getNextId() {
-        return getAllUsers()
-                .stream()
-                .map(UserDto::getId)
-                .max(Integer::compare)
-                .orElse(getAllUsers().size() + 1) + 1;
     }
 
     private void copyFields(UserDto old, UserDto newUser) {
