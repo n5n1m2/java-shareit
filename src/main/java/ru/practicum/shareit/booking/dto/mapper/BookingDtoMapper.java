@@ -1,11 +1,13 @@
 package ru.practicum.shareit.booking.dto.mapper;
 
 import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoOutput;
+import ru.practicum.shareit.booking.dto.BookingDtoWithoutItem;
 
 public class BookingDtoMapper {
-    public static BookingDto getBookingDto(Booking booking) {
-        return new BookingDto(booking.getId(),
+
+    public static BookingDtoOutput toDto(Booking booking) {
+        return new BookingDtoOutput(booking.getId(),
                 booking.getStart(),
                 booking.getEnd(),
                 booking.getItem(),
@@ -13,12 +15,25 @@ public class BookingDtoMapper {
                 booking.getStatus());
     }
 
-    public static Booking getBooking(BookingDto bookingDto) {
-        return new Booking(bookingDto.getId(),
-                bookingDto.getStart(),
-                bookingDto.getEnd(),
-                bookingDto.getItem(),
-                bookingDto.getBooker(),
-                bookingDto.getStatus());
+    public static Booking toBooking(BookingDtoOutput bookingDtoOutput) {
+        return new Booking(bookingDtoOutput.getId(),
+                bookingDtoOutput.getStart(),
+                bookingDtoOutput.getEnd(),
+                bookingDtoOutput.getItem(),
+                bookingDtoOutput.getBooker(),
+                bookingDtoOutput.getStatus());
+    }
+
+    public static BookingDtoWithoutItem toDtoWithoutItem(Booking booking) {
+        if (booking == null) {
+            return null;
+        }
+        return new BookingDtoWithoutItem(
+                booking.getId(),
+                booking.getStart(),
+                booking.getEnd(),
+                booking.getBooker(),
+                booking.getStatus()
+        );
     }
 }
