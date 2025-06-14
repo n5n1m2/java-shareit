@@ -19,6 +19,7 @@ import ru.practicum.shareit.user.storage.UserRepository;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static ru.practicum.shareit.constants.Constants.USER_ID_HEADER;
 
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase
@@ -53,7 +54,7 @@ public class ItemRequestControllerTests {
         testRequest.setDescription("Test");
 
         headers = new HttpHeaders();
-        headers.set("X-Sharer-User-Id", testUser.getId().toString());
+        headers.set(USER_ID_HEADER, testUser.getId().toString());
         headers.setContentType(MediaType.APPLICATION_JSON);
     }
 
@@ -108,7 +109,7 @@ public class ItemRequestControllerTests {
         );
 
         HttpHeaders anotherUserHeaders = new HttpHeaders();
-        anotherUserHeaders.set("X-Sharer-User-Id", createdAnotherUser.getId().toString());
+        anotherUserHeaders.set(USER_ID_HEADER, createdAnotherUser.getId().toString());
 
         ResponseEntity<List<ItemRequestDtoOutput>> response = restTemplate.exchange(
                 "/requests/all",

@@ -15,11 +15,11 @@ import ru.practicum.shareit.items.dto.ItemDto;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.constants.Headers.USER_ID_HEADER;
 
 @WebMvcTest(controllers = ItemController.class)
 @ContextConfiguration(classes = ShareItGateway.class)
 public class ItemControllerTest {
-    private final String userHeader = "X-Sharer-User-Id";
     @Autowired
     private ObjectMapper mapper;
     @MockBean
@@ -32,7 +32,7 @@ public class ItemControllerTest {
         ItemDto itemDto = new ItemDto();
 
         mockMvc.perform(post("/items")
-                        .header(userHeader, 1)
+                        .header(USER_ID_HEADER, 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(itemDto)))
                 .andExpect(status().isBadRequest());
@@ -40,7 +40,7 @@ public class ItemControllerTest {
         itemDto.setDescription("description");
         itemDto.setAvailable(true);
         mockMvc.perform(post("/items")
-                        .header(userHeader, 1)
+                        .header(USER_ID_HEADER, 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(itemDto)))
                 .andExpect(status().isBadRequest());
@@ -48,7 +48,7 @@ public class ItemControllerTest {
         itemDto.setName("name");
         itemDto.setDescription(null);
         mockMvc.perform(post("/items")
-                        .header(userHeader, 1)
+                        .header(USER_ID_HEADER, 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(itemDto)))
                 .andExpect(status().isBadRequest());
@@ -56,7 +56,7 @@ public class ItemControllerTest {
         itemDto.setDescription("description");
         itemDto.setAvailable(null);
         mockMvc.perform(post("/items")
-                        .header(userHeader, 1)
+                        .header(USER_ID_HEADER, 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(itemDto)))
                 .andExpect(status().isBadRequest());
@@ -72,7 +72,7 @@ public class ItemControllerTest {
         itemDto.setAvailable(true);
 
         mockMvc.perform(post("/items")
-                        .header(userHeader, 1)
+                        .header(USER_ID_HEADER, 1)
                         .content(mapper.writeValueAsString(itemDto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -86,7 +86,7 @@ public class ItemControllerTest {
         itemDto.setName("updated name");
 
         mockMvc.perform(patch("/items/1")
-                        .header(userHeader, 1)
+                        .header(USER_ID_HEADER, 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(itemDto)))
                 .andExpect(status().isOk());
@@ -95,7 +95,7 @@ public class ItemControllerTest {
         itemDto.setDescription("updated description");
 
         mockMvc.perform(patch("/items/1")
-                        .header(userHeader, 1)
+                        .header(USER_ID_HEADER, 1)
                         .content(mapper.writeValueAsString(itemDto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -106,7 +106,7 @@ public class ItemControllerTest {
     @Test
     public void getItemsTest() throws Exception {
         mockMvc.perform(get("/items")
-                        .header(userHeader, 1)
+                        .header(USER_ID_HEADER, 1)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
@@ -116,7 +116,7 @@ public class ItemControllerTest {
     @Test
     public void getItemTest() throws Exception {
         mockMvc.perform(get("/items/1")
-                        .header(userHeader, 1)
+                        .header(USER_ID_HEADER, 1)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
@@ -139,7 +139,7 @@ public class ItemControllerTest {
         commentDto.setText(null);
 
         mockMvc.perform(post("/items/1/comment")
-                        .header(userHeader, 1)
+                        .header(USER_ID_HEADER, 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(commentDto)))
                 .andExpect(status().isBadRequest());
@@ -153,7 +153,7 @@ public class ItemControllerTest {
         commentDto.setText("comment text");
 
         mockMvc.perform(post("/items/1/comment")
-                        .header(userHeader, 1)
+                        .header(USER_ID_HEADER, 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(commentDto)))
                 .andExpect(status().isOk());

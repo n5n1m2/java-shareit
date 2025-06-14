@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static ru.practicum.shareit.constants.Constants.USER_ID_HEADER;
 
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase
@@ -68,7 +69,7 @@ public class ItemControllerTests {
     @Test
     public void createItemTest() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Sharer-User-Id", testUser.getId().toString());
+        headers.set(USER_ID_HEADER, testUser.getId().toString());
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<ItemDto> requestEntity = new HttpEntity<>(testItem, headers);
@@ -88,7 +89,7 @@ public class ItemControllerTests {
     @Test
     public void updateItemTest() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Sharer-User-Id", testUser.getId().toString());
+        headers.set(USER_ID_HEADER, testUser.getId().toString());
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<ItemDto> requestEntity = new HttpEntity<>(testItem, headers);
@@ -136,7 +137,7 @@ public class ItemControllerTests {
     @Test
     public void getAllItemsTest() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Sharer-User-Id", testUser.getId().toString());
+        headers.set(USER_ID_HEADER, testUser.getId().toString());
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<ItemDto> requestEntity = new HttpEntity<>(testItem, headers);
@@ -164,7 +165,7 @@ public class ItemControllerTests {
     @Test
     public void searchItemsTest() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Sharer-User-Id", testUser.getId().toString());
+        headers.set(USER_ID_HEADER, testUser.getId().toString());
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<ItemDto> requestEntity = new HttpEntity<>(testItem, headers);
@@ -191,7 +192,7 @@ public class ItemControllerTests {
     @Test
     public void addCommentTest() throws InterruptedException {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Sharer-User-Id", testUser.getId().toString());
+        headers.set(USER_ID_HEADER, testUser.getId().toString());
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<ItemDto> requestEntity = new HttpEntity<>(testItem, headers);
@@ -246,7 +247,7 @@ public class ItemControllerTests {
     @Test
     public void getItemWithBookingsAndCommentsTest() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Sharer-User-Id", testUser.getId().toString());
+        headers.set(USER_ID_HEADER, testUser.getId().toString());
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         ItemDtoOutput createdItem = restTemplate.postForObject(
@@ -268,7 +269,7 @@ public class ItemControllerTests {
         );
 
         HttpHeaders ownerHeaders = new HttpHeaders();
-        ownerHeaders.set("X-Sharer-User-Id", testUser.getId().toString());
+        ownerHeaders.set(USER_ID_HEADER, testUser.getId().toString());
 
         restTemplate.patchForObject(
                 "/bookings/" + createdBooking.getId() + "?approved=true",

@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.constants.Headers.USER_ID_HEADER;
 
 @WebMvcTest(controllers = BookingController.class)
 @ContextConfiguration(classes = ShareItGateway.class)
@@ -35,7 +36,7 @@ public class BookingControllerTest {
         BookItemRequestDto dto = new BookItemRequestDto();
 
         mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", 1)
+                        .header(USER_ID_HEADER, 1)
                         .content(mapper.writeValueAsString(dto))
                         .characterEncoding("UTF-8")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -49,7 +50,7 @@ public class BookingControllerTest {
         BookItemRequestDto dto = new BookItemRequestDto(1L, LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2));
 
         mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", 1)
+                        .header(USER_ID_HEADER, 1)
                         .content(mapper.writeValueAsString(dto))
                         .characterEncoding("UTF-8")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -61,7 +62,7 @@ public class BookingControllerTest {
     @Test
     void getBookingTest() throws Exception {
         mockMvc.perform(get("/bookings/1")
-                        .header("X-Sharer-User-Id", 1))
+                        .header(USER_ID_HEADER, 1))
                 .andExpect(status().isOk());
 
         Mockito.verify(bookingClient, Mockito.atLeastOnce()).getBooking(1L, 1L);
@@ -70,7 +71,7 @@ public class BookingControllerTest {
     @Test
     void getBookingsTest() throws Exception {
         mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", 1))
+                        .header(USER_ID_HEADER, 1))
                 .andExpect(status().isOk());
 
         Mockito.verify(bookingClient, Mockito.atLeastOnce()).getBookings(Mockito.eq(1L), Mockito.any(), Mockito.anyInt(), Mockito.anyInt());
@@ -79,7 +80,7 @@ public class BookingControllerTest {
     @Test
     void getMyBookingsTest() throws Exception {
         mockMvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", 1))
+                        .header(USER_ID_HEADER, 1))
                 .andExpect(status().isOk());
 
         Mockito.verify(bookingClient, Mockito.atLeastOnce()).getMyBookings(Mockito.eq(1), Mockito.any());
@@ -88,7 +89,7 @@ public class BookingControllerTest {
     @Test
     void updateBookingTest() throws Exception {
         mockMvc.perform(patch("/bookings/1")
-                        .header("X-Sharer-User-Id", 1)
+                        .header(USER_ID_HEADER, 1)
                         .param("approved", "true"))
                 .andExpect(status().isOk());
 

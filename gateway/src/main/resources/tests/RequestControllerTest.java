@@ -16,6 +16,7 @@ import ru.practicum.shareit.requests.RequestController;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.constants.Headers.USER_ID_HEADER;
 
 @WebMvcTest(controllers = RequestController.class)
 @ContextConfiguration(classes = ShareItGateway.class)
@@ -33,7 +34,7 @@ class RequestControllerTest {
         itemRequest.setDescription("description");
         mockMvc.perform(post("/requests")
                         .content(mapper.writeValueAsString(itemRequest))
-                        .header("X-Sharer-User-Id", 1)
+                        .header(USER_ID_HEADER, 1)
                         .characterEncoding("UTF-8")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -44,7 +45,7 @@ class RequestControllerTest {
     public void createFailTest() throws Exception {
         mockMvc.perform(post("/requests")
                         .content(mapper.writeValueAsString(itemRequest))
-                        .header("X-Sharer-User-Id", 1)
+                        .header(USER_ID_HEADER, 1)
                         .characterEncoding("UTF-8")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -54,7 +55,7 @@ class RequestControllerTest {
     @Test
     public void getAllForUserTest() throws Exception {
         mockMvc.perform(get("/requests")
-                        .header("X-Sharer-User-Id", 1)
+                        .header(USER_ID_HEADER, 1)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
         Mockito.verify(client, Mockito.atLeastOnce()).getAllForUser(1L);
@@ -63,7 +64,7 @@ class RequestControllerTest {
     @Test
     public void getAllTest() throws Exception {
         mockMvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", 1)
+                        .header(USER_ID_HEADER, 1)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
         Mockito.verify(client, Mockito.atLeastOnce()).getAll(1L);

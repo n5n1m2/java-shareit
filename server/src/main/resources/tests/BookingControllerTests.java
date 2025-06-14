@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static ru.practicum.shareit.constants.Constants.USER_ID_HEADER;
 
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase
@@ -68,7 +69,7 @@ public class BookingControllerTests {
     @Test
     public void createBookingTest() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Sharer-User-Id", bookerId.toString());
+        headers.set(USER_ID_HEADER, bookerId.toString());
 
         BookingDtoOutput createdBooking = restTemplate.postForObject(
                 "/bookings",
@@ -86,7 +87,7 @@ public class BookingControllerTests {
         BookingDtoOutput booking = createTestBooking();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Sharer-User-Id", ownerId.toString());
+        headers.set(USER_ID_HEADER, ownerId.toString());
 
         BookingDtoOutput approvedBooking = restTemplate.patchForObject(
                 "/bookings/" + booking.getId() + "?approved=true",
@@ -102,7 +103,7 @@ public class BookingControllerTests {
         BookingDtoOutput createdBooking = createTestBooking();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Sharer-User-Id", bookerId.toString());
+        headers.set(USER_ID_HEADER, bookerId.toString());
 
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
@@ -123,7 +124,7 @@ public class BookingControllerTests {
         createTestBooking();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Sharer-User-Id", bookerId.toString());
+        headers.set(USER_ID_HEADER, bookerId.toString());
 
         ResponseEntity<List<BookingDtoOutput>> response = restTemplate.exchange(
                 "/bookings?state=ALL",
@@ -140,7 +141,7 @@ public class BookingControllerTests {
         createTestBooking();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Sharer-User-Id", ownerId.toString());
+        headers.set(USER_ID_HEADER, ownerId.toString());
 
         ResponseEntity<List<BookingDtoOutput>> response = restTemplate.exchange(
                 "/bookings/owner?state=ALL",
@@ -158,13 +159,13 @@ public class BookingControllerTests {
         update.setAvailable(false);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Sharer-User-Id", ownerId.toString());
+        headers.set(USER_ID_HEADER, ownerId.toString());
         restTemplate.patchForObject(
                 "/items/" + itemId,
                 new HttpEntity<>(update, headers),
                 ItemDtoOutput.class
         );
-        headers.set("X-Sharer-User-Id", bookerId.toString());
+        headers.set(USER_ID_HEADER, bookerId.toString());
         ResponseEntity<String> response = restTemplate.postForEntity(
                 "/bookings",
                 new HttpEntity<>(testBooking, headers),
@@ -176,7 +177,7 @@ public class BookingControllerTests {
 
     private BookingDtoOutput createTestBooking() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Sharer-User-Id", bookerId.toString());
+        headers.set(USER_ID_HEADER, bookerId.toString());
 
         return restTemplate.postForObject(
                 "/bookings",
@@ -202,7 +203,7 @@ public class BookingControllerTests {
         itemDto.setAvailable(true);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Sharer-User-Id", ownerId.toString());
+        headers.set(USER_ID_HEADER, ownerId.toString());
 
         ItemDtoOutput createdItem = restTemplate.postForObject(
                 "/items",
