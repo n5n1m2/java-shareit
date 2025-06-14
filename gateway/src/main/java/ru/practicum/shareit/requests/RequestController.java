@@ -5,11 +5,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import static ru.practicum.shareit.constants.Headers.USER_ID_HEADER;
+
 @RestController
 @RequestMapping(path = "/requests")
 @AllArgsConstructor
 public class RequestController {
-    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
     private RequestClient requestClient;
 
     @PostMapping

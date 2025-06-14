@@ -7,11 +7,12 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.items.dto.CommentDto;
 import ru.practicum.shareit.items.dto.ItemDto;
 
+import static ru.practicum.shareit.constants.Headers.USER_ID_HEADER;
+
 @RestController
 @RequestMapping("/items")
 @AllArgsConstructor
 public class ItemController {
-    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
     private ItemClient itemClient;
 
     @PostMapping
@@ -45,6 +46,6 @@ public class ItemController {
     public ResponseEntity<Object> addComment(@RequestBody @Validated CommentDto comment,
                                              @RequestHeader(USER_ID_HEADER) Long userId,
                                              @PathVariable Long itemId) {
-        return itemClient.addComment(itemId,userId, comment);
+        return itemClient.addComment(itemId, userId, comment);
     }
 }

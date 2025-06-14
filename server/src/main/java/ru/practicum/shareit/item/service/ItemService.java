@@ -1,18 +1,15 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.error.exceptions.CommentNoHavePermission;
 import ru.practicum.shareit.error.exceptions.NoHavePermissionException;
 import ru.practicum.shareit.error.exceptions.NotFoundException;
+import ru.practicum.shareit.item.dto.in.CommentDto;
 import ru.practicum.shareit.item.dto.in.ItemDto;
 import ru.practicum.shareit.item.dto.mapper.ItemMapper;
-import ru.practicum.shareit.item.dto.in.CommentDto;
 import ru.practicum.shareit.item.dto.out.ItemDtoOutput;
 import ru.practicum.shareit.item.dto.out.ItemDtoWithBookingAndComments;
 import ru.practicum.shareit.item.model.Comment;
@@ -23,10 +20,14 @@ import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.storage.UserRepository;
 
-import java.beans.PropertyDescriptor;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static ru.practicum.shareit.constants.Constants.copyFields;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +42,7 @@ public class ItemService {
     public ItemDtoOutput addItem(ItemDto itemDto, Integer userId) {
         ItemRequest itemRequest = null;
         if (itemDto.getRequestId() != null) {
-             itemRequest =  itemRequestRepository.findById(itemDto.getRequestId())
+            itemRequest = itemRequestRepository.findById(itemDto.getRequestId())
                     .orElseThrow(() -> new NotFoundException("ItemRequest with id " + itemDto.getRequestId() + " not found"));
         }
         Item item = itemMapper.toItem(itemDto,
@@ -55,7 +56,7 @@ public class ItemService {
 
         ItemRequest itemRequest = null;
         if (itemDto.getRequestId() != null) {
-            itemRequest =  itemRequestRepository.findById(itemDto.getRequestId())
+            itemRequest = itemRequestRepository.findById(itemDto.getRequestId())
                     .orElseThrow(() -> new NotFoundException("ItemRequest with id " + itemDto.getRequestId() + " not found"));
         }
 
@@ -166,20 +167,5 @@ public class ItemService {
         }
     }
 
-    private void copyFields(Item old, Item newItem) {
-        BeanUtils.copyProperties(newItem, old, getNotNullFields(newItem));
-    }
 
-    private String[] getNotNullFields(Object object) {
-        BeanWrapper wrapper = new BeanWrapperImpl(object);
-        PropertyDescriptor[] propertyDescriptors = wrapper.getPropertyDescriptors();
-        Set<String> emptyFields = new HashSet<>();
-        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
-            Object value = wrapper.getPropertyValue(propertyDescriptor.getName());
-            if (value == null) {
-                emptyFields.add(propertyDescriptor.getName());
-            }
-        }
-        return emptyFields.toArray(new String[0]);
-    }
 }

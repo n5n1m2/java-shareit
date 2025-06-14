@@ -127,7 +127,6 @@ public class BookingService {
     }
 
 
-
     private void validatePermission(Booking booking, int userId) {
         if (userId != booking.getItem().getOwner().getId()) {
             throw new NoHavePermissionException("user with id " + userId + " not allowed to update booking");
