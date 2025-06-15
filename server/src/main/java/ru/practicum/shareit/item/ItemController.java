@@ -2,8 +2,8 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.in.ItemDto;
 import ru.practicum.shareit.item.dto.in.CommentDto;
+import ru.practicum.shareit.item.dto.in.ItemDto;
 import ru.practicum.shareit.item.dto.out.ItemDtoOutput;
 import ru.practicum.shareit.item.dto.out.ItemDtoWithBookingAndComments;
 import ru.practicum.shareit.item.service.ItemService;

@@ -130,7 +130,8 @@ public class BookingControllerTests {
                 "/bookings?state=ALL",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                new ParameterizedTypeReference<>() {}
+                new ParameterizedTypeReference<>() {
+                }
         );
 
         assertFalse(response.getBody().isEmpty());
@@ -147,7 +148,8 @@ public class BookingControllerTests {
                 "/bookings/owner?state=ALL",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                new ParameterizedTypeReference<>() {}
+                new ParameterizedTypeReference<>() {
+                }
         );
 
         assertFalse(response.getBody().isEmpty());
